@@ -2,8 +2,10 @@ package com.sharathkumar.musix
 
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -47,7 +49,6 @@ import kotlinx.coroutines.delay
 
 
 class MainActivity : ComponentActivity() {
-    private lateinit var sharedPreferencesManager: SharedPreferencesManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -65,7 +66,6 @@ fun PlayButtons(context: Context){
         requestStoragePermission(context)
         return
     }
-    var currentsong = 0
     val audioFiles = remember { getAllAudioFiles(context) }
     val audioPlayer : AudioPlayer = viewModel(factory = AudioViewModelFactory(context))
     var currentPosition by remember { mutableStateOf(0) }
@@ -93,7 +93,6 @@ fun PlayButtons(context: Context){
                       .height(50.dp)
                       .padding(bottom = 4.dp)
                       .clickable(onClick = {
-                          currentsong = item
                           audioPlayer.playAudioFile(item)
                       })
                   ){
@@ -137,10 +136,7 @@ fun PlayButtons(context: Context){
                 disabledContainerColor = Color.Transparent,
                 containerColor = Color.Transparent),
                 onClick = {
-                if(currentsong>0){
-                    currentsong--
-                    audioPlayer.playAudioFile(currentsong)
-                }
+                    audioPlayer.back()
               }) {
                 Text("⏮", fontSize = 30.sp)
             }
@@ -155,10 +151,9 @@ fun PlayButtons(context: Context){
                 disabledContentColor = Color.Transparent,
                 disabledContainerColor = Color.Transparent,
                 containerColor = Color.Transparent),
-                onClick = { if(currentsong<audioFiles.size-1){
-                currentsong++
-                audioPlayer.playAudioFile(currentsong)
-            } }) {
+                onClick = {
+                audioPlayer.next()
+                }) {
                 Text("⏭", fontSize = 30.sp)
             }
         }
